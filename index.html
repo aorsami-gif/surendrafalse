@@ -83,13 +83,22 @@
             flex-direction: column; justify-content: center; align-items: center;
             z-index: 100; pointer-events: auto; color: white; text-align: center; padding: 20px;
         }
-        #victory-screen { display: none; background: rgba(10, 25, 10, 0.95); z-index: 200; }
+        #victory-screen { display: none; background: rgba(10, 20, 10, 0.96); z-index: 200; }
         
+        .vault-box {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 140, 0, 0.15));
+            border: 2px solid #ffd700; border-radius: 16px; padding: 16px 24px;
+            margin: 15px 0; box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            max-width: 350px;
+        }
+        .vault-box h2 { color: #ffd700; font-size: 18px; margin: 0 0 6px 0; text-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
+        .vault-box p { color: #fff; font-size: 14px; margin: 0; }
+
         #audio-prompt button, #victory-screen button {
-            background: linear-gradient(135deg, #00ffff, #0088ff);
-            border: none; color: #000; font-size: 20px; font-weight: bold;
-            padding: 14px 36px; border-radius: 30px; cursor: pointer;
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.7); margin-top: 20px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border: none; color: #000; font-size: 18px; font-weight: bold;
+            padding: 12px 32px; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7); margin-top: 10px;
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -102,8 +111,14 @@
     </div>
 
     <div id="victory-screen">
-        <h1 style="color: #ffff00; font-size: 38px; margin-bottom: 10px;">VICTORY!</h1>
-        <p style="color: #fff; font-size: 22px; max-width: 400px; line-height: 1.4;">Congrats berojgar game jiteko ma!</p>
+        <h1 style="color: #ffff00; font-size: 36px; margin-bottom: 6px;">VICTORY!</h1>
+        <p style="color: #fff; font-size: 20px; max-width: 400px; line-height: 1.3; margin-bottom: 12px;">Congrats berojgar game jiteko ma!</p>
+        
+        <div class="vault-box">
+            <h2>🏆 BEROJGAR GOLDEN VAULT UNLOCKED</h2>
+            <p>Reward: Unlimited Chai & Wi-Fi Access! Lifetime Achievement Unlocked.</p>
+        </div>
+
         <button id="restart-btn">PLAY AGAIN</button>
     </div>
 
@@ -217,7 +232,35 @@
             torso.position.y = 1.1;
             surendraGroup.add(torso);
 
-            head = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.5, 0.48), skin);
+            // Canvas texture with 👁️👁️ and 👄
+            const faceCanvas = document.createElement('canvas');
+            faceCanvas.width = 256;
+            faceCanvas.height = 256;
+            const ctx = faceCanvas.getContext('2d');
+
+            ctx.fillStyle = '#d4a373';
+            ctx.fillRect(0, 0, 256, 256);
+
+            ctx.font = '65px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('👁️  👁️', 128, 90);
+
+            ctx.font = '75px sans-serif';
+            ctx.fillText('👄', 128, 175);
+
+            const faceTexture = new THREE.CanvasTexture(faceCanvas);
+
+            const headMaterials = [
+                skin,
+                skin,
+                skin,
+                skin,
+                new THREE.MeshStandardMaterial({ map: faceTexture }), // Front face
+                skin
+            ];
+
+            head = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.5, 0.48), headMaterials);
             head.position.y = 1.85;
             surendraGroup.add(head);
 
@@ -247,7 +290,7 @@
         function triggerHit(type) {
             if (isKnockedOut) return;
 
-            // Surendra Dodge mechanic (30% chance Surendra dodges the punch!)
+            // 30% dodge chance
             let isDodged = Math.random() < 0.3;
             const ann = document.getElementById('announcement');
 
@@ -258,7 +301,6 @@
                 ann.style.opacity = '1';
                 setTimeout(() => { ann.style.opacity = '0'; }, 300);
                 
-                // Quick dodge movement
                 surendraGroup.position.x = (Math.random() > 0.5 ? 1 : -1) * 0.6;
                 setTimeout(() => { surendraGroup.position.x = 0; }, 200);
                 return;
@@ -345,11 +387,11 @@
         document.getElementById('btn-uppercut').addEventListener('click', () => triggerHit('uppercut'));
 
         window.addEventListener('keydown', (e) => {
+            e.preventDefault();
             if (e.code === 'KeyJ' || e.code === 'Space') triggerHit('jab');
             if (e.code === 'KeyK') triggerHit('hook');
             if (e.code === 'KeyL') triggerHit('uppercut');
         });
     </script>
 </body>
-          </html>
-                  
+</html>
